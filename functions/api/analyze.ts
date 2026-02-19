@@ -41,43 +41,45 @@ Return ONLY valid JSON matching the schema.`;
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: "gpt-5.2-mini",
-      input: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "scam_check_result",
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              verdict: { type: "string", enum: ["scam", "likely_scam", "unsure", "likely_legit"] },
-              confidence: { type: "integer", minimum: 0, maximum: 100 },
-              summary: { type: "string" },
-              why: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 10 },
-              red_flags: { type: "array", items: { type: "string" }, maxItems: 15 },
-              safe_next_steps: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 10 },
-              entities: {
-                type: "object",
-                additionalProperties: false,
-                properties: {
-                  phones: { type: "array", items: { type: "string" } },
-                  emails: { type: "array", items: { type: "string" } },
-                  urls: { type: "array", items: { type: "string" } },
-                  requested_action: { type: "string" },
-                },
-                required: ["phones", "emails", "urls", "requested_action"],
+  model: "gpt-5.2-mini",
+  input: [
+    { role: "system", content: system },
+    { role: "user", content: user },
+  ],
+  text: {
+    format: {
+      type: "json_schema",
+      json_schema: {
+        name: "scam_check_result",
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            verdict: { type: "string", enum: ["scam", "likely_scam", "unsure", "likely_legit"] },
+            confidence: { type: "integer", minimum: 0, maximum: 100 },
+            summary: { type: "string" },
+            why: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 10 },
+            red_flags: { type: "array", items: { type: "string" }, maxItems: 15 },
+            safe_next_steps: { type: "array", items: { type: "string" }, minItems: 3, maxItems: 10 },
+            entities: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                phones: { type: "array", items: { type: "string" } },
+                emails: { type: "array", items: { type: "string" } },
+                urls: { type: "array", items: { type: "string" } },
+                requested_action: { type: "string" },
               },
+              required: ["phones", "emails", "urls", "requested_action"],
             },
-            required: ["verdict", "confidence", "summary", "why", "red_flags", "safe_next_steps", "entities"],
           },
+          required: ["verdict", "confidence", "summary", "why", "red_flags", "safe_next_steps", "entities"],
         },
       },
-    }),
-  });
+    },
+  },
+})
+
 
   if (!resp.ok) return json({ error: "OpenAI request failed", details: await resp.text() }, 502);
 
